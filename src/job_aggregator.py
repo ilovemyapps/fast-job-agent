@@ -12,9 +12,9 @@ from pathlib import Path
 # Add src to path
 sys.path.append(str(Path(__file__).parent))
 
-from async_ashby_scraper import AsyncAshbyScraper
-from async_greenhouse_scraper import AsyncGreenhouseScraper
-from async_lever_scraper import AsyncLeverScraper
+from ashby_scraper import AsyncAshbyScraper
+from greenhouse_scraper import AsyncGreenhouseScraper
+from lever_scraper import AsyncLeverScraper
 from data_processor_pandas import JobDataProcessor
 from notion_sync import NotionSync
 
