@@ -1,6 +1,6 @@
 # Fast Job Agent - Ashby HQ Job Scraper
 
-Automatically scrape Forward Deployed Engineer related positions from Ashby HQ.
+Automatically scrape Forward Deployed Engineer(or other customer-facing engineering ) positions from Ashby HQ and other websites.
 
 ## Features
 
