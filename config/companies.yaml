@@ -1,0 +1,100 @@
+# Ashby HQ Companies Configuration
+# Format: Company Name: job_board_name
+companies:
+  - name: ElevenLabs
+    job_board_name: elevenlabs
+    url: https://jobs.ashbyhq.com/elevenlabs
+  - name: Baseten
+    job_board_name: baseten
+    url: https://jobs.ashbyhq.com/baseten
+  - name: Lorikeet
+    job_board_name: lorikeet
+    url: https://jobs.ashbyhq.com/lorikeet
+  - name: Crogl
+    job_board_name: crogl
+    url: https://jobs.ashbyhq.com/crogl
+  - name: Extend
+    job_board_name: extend
+    url: https://jobs.ashbyhq.com/extend
+  - name: Variance
+    job_board_name: intrinsic-safety
+    url: https://jobs.ashbyhq.com/intrinsic-safety
+  - name: Gecko Robotics
+    job_board_name: gecko-robotics
+    url: https://jobs.ashbyhq.com/gecko-robotics
+  - name: Anterior
+    job_board_name: anterior
+    url: https://jobs.ashbyhq.com/anterior
+  - name: Rogo
+    job_board_name: rogo
+    url: https://jobs.ashbyhq.com/rogo
+  - name: OpenAI
+    job_board_name: openai
+    url: https://jobs.ashbyhq.com/openai
+  - name: Rilla
+    job_board_name: rilla
+    url: https://jobs.ashbyhq.com/rilla
+  - name: Lilt
+    job_board_name: lilt
+    url: https://jobs.ashbyhq.com/lilt
+  - name: Salient
+    job_board_name: salient
+    url: https://jobs.ashbyhq.com/salient
+  - name: FieldGuide
+    job_board_name: fieldguide
+    url: https://jobs.ashbyhq.com/fieldguide
+  - name: Privy
+    job_board_name: privy
+    url: https://jobs.ashbyhq.com/privy
+  - name: Rain
+    job_board_name: rain
+    url: https://jobs.ashbyhq.com/rain
+  - name: Vooma
+    job_board_name: vooma
+    url: https://jobs.ashbyhq.com/vooma
+  - name: Casca
+    job_board_name: casca
+    url: https://jobs.ashbyhq.com/casca
+  - name: GigaML
+    job_board_name: GigaML
+    url: https://jobs.ashbyhq.com/GigaML
+  - name: Endeavor
+    job_board_name: endeavor
+    url: https://jobs.ashbyhq.com/endeavor
+  - name: SiftStack
+    job_board_name: siftstack
+    url: https://jobs.ashbyhq.com/siftstack
+  - name: LangChain
+    job_board_name: langchain
+    url: https://jobs.ashbyhq.com/langchain
+  - name: Oso
+    job_board_name: Oso
+    url: https://jobs.ashbyhq.com/Oso
+  - name: OneSchema
+    job_board_name: oneschema
+    url: https://jobs.ashbyhq.com/oneschema
+  - name: Tandem
+    job_board_name: tandem
+    url: https://jobs.ashbyhq.com/tandem
+  - name: Sample Healthcare
+    job_board_name: sample-healthcare
+    url: https://jobs.ashbyhq.com/sample-healthcare
+  - name: Bayesian Health
+    job_board_name: bayesianhealth
+    url: https://jobs.ashbyhq.com/bayesianhealth
+  - name: Candid Health
+    job_board_name: candidhealth
+    url: https://jobs.ashbyhq.com/candidhealth
+  - name: Mandolin
+    job_board_name: mandolin
+    url: https://jobs.ashbyhq.com/mandolin
+  - name: SuperDial
+    job_board_name: superdial
+    url: https://jobs.ashbyhq.com/superdial
+  - name: Pear VC Portfolio
+    job_board_name: pear
+    url: https://jobs.ashbyhq.com/pear
+    is_vc_portfolio: true
+  - name: Decagon
+    job_board_name: decagon
+    url: https://jobs.ashbyhq.com/decagon
