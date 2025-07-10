@@ -1,4 +1,0 @@
-- Ensure `run.sh` has execute permission: `chmod +x run.sh`
-- Cron uses different environment variables than terminal, if issues occur, add full paths in run.sh
-- macOS may require granting Full Disk Access to Terminal app in System Preferences
-- Project moved to /Users/shuai/fast-job-agent to avoid Desktop protection issues
