@@ -1,7 +1,12 @@
+# Environment variables and private configs
+.env
+
+# Claude Code settings (personal configurations)
+.claude/
+
 # Virtual Environment
 venv/
 env/
-.env
 
 # Python Cache
 __pycache__/
