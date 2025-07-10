@@ -23,8 +23,8 @@ else
     echo "⚠️  Virtual environment not found, using system Python"
 fi
 
-# Run async job aggregator (includes all scrapers + deduplication)
-python3 src/async_job_aggregator.py
+# Run job aggregator (includes all scrapers + deduplication)
+python3 src/job_aggregator.py
 
 # Record run time
 echo "Completed at: $(date)" >> logs/run.log

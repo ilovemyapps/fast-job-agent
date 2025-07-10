@@ -10,7 +10,7 @@ import re
 import logging
 import aiohttp
 from typing import List, Dict, Optional
-from async_base_scraper import AsyncBaseScraper
+from base_scraper import AsyncBaseScraper
 from location_filter import is_us_location
 import config
 

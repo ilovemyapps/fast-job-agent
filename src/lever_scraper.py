@@ -1,41 +1,41 @@
 #!/usr/bin/env python3
 """
-Async Greenhouse Job Scraper
-Scrape Forward Deployed Engineer related positions from Greenhouse using aiohttp
+Async Lever Job Scraper
+Scrape Forward Deployed Engineer related positions from Lever using aiohttp
 """
 
 import asyncio
 import json
 import logging
 import aiohttp
+from datetime import datetime
 from typing import List, Dict
-from async_base_scraper import AsyncBaseScraper
+from base_scraper import AsyncBaseScraper
 from location_filter import is_us_location
 import config
 
 logger = logging.getLogger(__name__)
 
 
-class AsyncGreenhouseScraper(AsyncBaseScraper):
+class AsyncLeverScraper(AsyncBaseScraper):
     def __init__(self, config_path: str = None):
-        super().__init__(config_path or str(config.GREENHOUSE_CONFIG))
+        super().__init__(config_path or str(config.LEVER_CONFIG))
     
     async def scrape_company(self, session: aiohttp.ClientSession, company: Dict) -> List[Dict]:
         """Scrape jobs from a single company asynchronously"""
-        logger.info(f"🔍 Starting async Greenhouse scrape of {company['name']}...")
+        logger.info(f"🔍 Starting async Lever scrape of {company['name']}...")
         
         try:
-            # Use Greenhouse API
-            api_url = config.GREENHOUSE_API_URL.format(board_name=company['board_name'])
+            # Use Lever API
+            api_url = config.LEVER_API_URL.format(company_name=company['lever_name'])
             
             async with session.get(api_url) as response:
                 if response.status != 200:
                     logger.error(f"HTTP {response.status} for {company['name']}")
                     return []
                 
-                data = await response.json()
+                all_jobs = await response.json()
             
-            all_jobs = data.get('jobs', [])
             logger.info(f"Found {len(all_jobs)} jobs from {company['name']}")
             
             # Filter FDE related jobs
@@ -45,21 +45,28 @@ class AsyncGreenhouseScraper(AsyncBaseScraper):
             # Format data
             formatted_jobs = []
             for job in fde_jobs:
-                # Extract department info
-                departments = job.get('departments', [])
-                department_name = departments[0].get('name', '') if departments else ''
+                # Extract location from categories
+                categories = job.get('categories', {})
+                location = categories.get('location', '')
+                
+                # Convert timestamp to date
+                created_timestamp = job.get('createdAt', 0)
+                if created_timestamp:
+                    published_date = datetime.fromtimestamp(created_timestamp/1000).strftime('%Y-%m-%d')
+                else:
+                    published_date = ''
                 
                 formatted_job = {
-                    'role_name': job.get('title', ''),
+                    'role_name': job.get('text', ''),
                     'company_name': company['name'],
-                    'location': job.get('location', {}).get('name', ''),
-                    'job_link': job.get('absolute_url', ''),
-                    'employment_type': 'FullTime',  # Greenhouse doesn't specify this in API
-                    'team': department_name,
-                    'published_date': job.get('updated_at', '').split('T')[0] if job.get('updated_at') else '',
-                    'compensation': 'Not disclosed',  # Greenhouse API doesn't include compensation
-                    'job_id': str(job.get('id', '')),
-                    'source': 'Greenhouse'
+                    'location': location,
+                    'job_link': f"https://jobs.lever.co/{company['lever_name']}/{job.get('id', '')}",
+                    'employment_type': categories.get('commitment', 'FullTime'),
+                    'team': categories.get('team', ''),
+                    'published_date': published_date,
+                    'compensation': 'Not disclosed',  # Lever API doesn't include compensation
+                    'job_id': job.get('id', ''),
+                    'source': 'Lever'
                 }
                 formatted_jobs.append(formatted_job)
             
@@ -99,7 +106,7 @@ class AsyncGreenhouseScraper(AsyncBaseScraper):
 
 
 async def main():
-    """Test the async Greenhouse scraper"""
+    """Test the async Lever scraper"""
     import asyncio
     
     # Configure logging
@@ -108,21 +115,21 @@ async def main():
         format=config.LOG_FORMAT
     )
     
-    scraper = AsyncGreenhouseScraper()
+    scraper = AsyncLeverScraper()
     
     if not scraper.companies:
-        print("No Greenhouse companies configured")
+        print("No Lever companies configured")
         return
     
     # Scrape all jobs
     jobs = await scraper.scrape_all(max_concurrent=8)
     
     if jobs:
-        print(f"✅ Found {len(jobs)} async Greenhouse FDE jobs")
+        print(f"✅ Found {len(jobs)} async Lever FDE jobs")
         for job in jobs[:5]:  # Show first 5
             print(f"  • {job['role_name']} at {job['company_name']} ({job['location']})")
     else:
-        print("❌ No Greenhouse FDE jobs found")
+        print("❌ No Lever FDE jobs found")
 
 
 if __name__ == "__main__":
