@@ -1,6 +1,0 @@
-# Lever Companies Configuration
-# Format: Company Name: lever_name
-companies:
-  - name: Palantir Technologies
-    lever_name: palantir
-    url: https://jobs.lever.co/palantir

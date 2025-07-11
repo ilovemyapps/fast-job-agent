@@ -1,0 +1,14 @@
+# Ashby HQ Companies Configuration Example
+# Format: Company Name: job_board_name
+companies:
+  - name: Example Company
+    job_board_name: example
+    url: https://jobs.ashbyhq.com/example
+  - name: Another Company
+    job_board_name: anothercompany
+    url: https://jobs.ashbyhq.com/anothercompany
+  # For VC portfolio boards, add this flag:
+  - name: Example VC Portfolio
+    job_board_name: examplevc
+    url: https://jobs.ashbyhq.com/examplevc
+    is_vc_portfolio: true
