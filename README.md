@@ -18,13 +18,15 @@ pip3 install -r requirements.txt
 ```
 
 ### 2. Configure Company List
-Edit `config/companies.yaml` to add companies to monitor:
-```yaml
-companies:
-  - name: Company Name
-    job_board_name: ashby_url_name
-    url: https://jobs.ashbyhq.com/ashby_url_name
+Copy the example configuration files and customize for your needs:
+```bash
+cp -r config.example config
 ```
+
+Then edit the configuration files in `config/` to add companies to monitor:
+- `companies.yaml` - Ashby HQ companies
+- `greenhouse_companies.yaml` - Greenhouse companies  
+- `lever_companies.yaml` - Lever companies
 
 ### 3. Run Scraper
 ```bash
@@ -102,7 +104,6 @@ See [CRON_SETUP.md](CRON_SETUP.md) for how to setup scheduled tasks.
 ### Future Enhancements
 - [ ] **Add Notion AI-based filtering**: Use Notion AI to further filter and categorize job postings
 - [ ] **Add more VC portfolio job boards**: Expand beyond Ashby to include more VC investment portfolio job sites
-- [ ] **add lever sites ** https://jobs.lever.co/palantir
 - [ ] **Weekly Summary Report**
 • New openings this week: 15
 • Top companies: OpenAI (5), Databricks (3)

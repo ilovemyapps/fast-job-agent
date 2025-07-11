@@ -4,6 +4,9 @@
 # Claude Code settings (personal configurations)
 .claude/
 
+# Configuration files (company lists)
+config/
+
 # Virtual Environment
 venv/
 env/

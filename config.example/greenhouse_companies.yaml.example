@@ -1,0 +1,9 @@
+# Greenhouse Companies Configuration Example
+# Format: Company Name: board_name (from URL)
+companies:
+  - name: Example Corp
+    board_name: examplecorp
+    url: https://job-boards.greenhouse.io/examplecorp
+  - name: Tech Company
+    board_name: techcompany
+    url: https://job-boards.greenhouse.io/techcompany
