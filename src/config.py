@@ -68,6 +68,7 @@ FDE_KEYWORDS = [
     'backend engineer',
     'frontend engineer',
     'product engineer',
+    'founding engineer',
 
     #devops engineer',
     # 'data engineer',
