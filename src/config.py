@@ -42,6 +42,7 @@ CSV_FIELDS = [
 
 # FDE job keywords
 FDE_KEYWORDS = [
+    #customer facing engineer keywords
     'forward deployed engineer',
     'forward deployed',
     'customer engineer',
@@ -53,7 +54,24 @@ FDE_KEYWORDS = [
     'technical account manager',
     'customer success engineer',
     'implementation engineer',
-    'deployment engineer'
+    'deployment engineer',
+    #ai engineer keywords
+    'ai engineer',
+    'genai engineer',
+    'ai developer',
+    'machine learning engineer',
+    'agent engineer',
+
+    #others 
+    'software engineer',
+    'full stack engineer',
+    'backend engineer',
+    'frontend engineer',
+    'product engineer',
+
+    #devops engineer',
+    # 'data engineer',
+    # 'data scientist',
 ]
 
 # Non-US location keywords
