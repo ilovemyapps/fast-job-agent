@@ -2,6 +2,14 @@
 
 > **Intelligent Engineering Job Aggregator** - Automated monitoring and collection of high-quality engineering positions from top tech companies
 
+## 🎯 Live Results
+
+**👀 [View Current Job Listings →](https://www.notion.so/22aa175fa91c80c1a09fe1911721e2cc)**
+
+*Real-time database of Forward Deployed Engineer and Solutions Engineer positions from 50+ top tech companies, updated daily*
+
+---
+
 A high-performance async job scraping system specifically designed for Forward Deployed Engineer, Solutions Engineer, and other customer-facing engineering roles across major recruitment platforms including Ashby, Greenhouse, and Lever.
 
 ## 🎯 Core Value
