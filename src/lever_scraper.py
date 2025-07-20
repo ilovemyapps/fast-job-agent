@@ -25,51 +25,52 @@ class AsyncLeverScraper(AsyncBaseScraper):
     async def scrape_company(self, session: aiohttp.ClientSession, company: Dict) -> List[Dict]:
         """Scrape jobs from a single company asynchronously"""
         log_scraper_start(company['name'], 'Lever', logger)
-            # Use Lever API
-            api_url = config.LEVER_API_URL.format(company_name=company['lever_name'])
+        
+        # Use Lever API
+        api_url = config.LEVER_API_URL.format(company_name=company['lever_name'])
+        
+        async with session.get(api_url) as response:
+            if response.status != 200:
+                logger.error(f"HTTP {response.status} for {company['name']}")
+                return []
             
-            async with session.get(api_url) as response:
-                if response.status != 200:
-                    logger.error(f"HTTP {response.status} for {company['name']}")
-                    return []
-                
-                all_jobs = await response.json()
+            all_jobs = await response.json()
+        
+        logger.info(f"Found {len(all_jobs)} jobs from {company['name']}")
+        
+        # Filter FDE related jobs
+        fde_jobs = self._filter_fde_jobs(all_jobs)
+        logger.info(f"Filtered {len(fde_jobs)} FDE related jobs from {company['name']}")
+        
+        # Format data
+        formatted_jobs = []
+        for job in fde_jobs:
+            # Create base job dict
+            formatted_job = self.create_job_dict(job, company, JobSource.LEVER)
             
-            logger.info(f"Found {len(all_jobs)} jobs from {company['name']}")
+            # Extract location and other data from categories
+            categories = job.get('categories', {})
+            location = categories.get('location', '')
             
-            # Filter FDE related jobs
-            fde_jobs = self._filter_fde_jobs(all_jobs)
-            logger.info(f"Filtered {len(fde_jobs)} FDE related jobs from {company['name']}")
+            # Convert timestamp to date
+            created_timestamp = job.get('createdAt', 0)
+            published_date = timestamp_to_date(created_timestamp) if created_timestamp else ''
             
-            # Format data
-            formatted_jobs = []
-            for job in fde_jobs:
-                # Create base job dict
-                formatted_job = self.create_job_dict(job, company, JobSource.LEVER)
-                
-                # Extract location and other data from categories
-                categories = job.get('categories', {})
-                location = categories.get('location', '')
-                
-                # Convert timestamp to date
-                created_timestamp = job.get('createdAt', 0)
-                published_date = timestamp_to_date(created_timestamp) if created_timestamp else ''
-                
-                # Override with Lever-specific fields
-                formatted_job.update({
-                    'role_name': job.get('text', ''),
-                    'location': location,
-                    'job_link': f"https://jobs.lever.co/{company['lever_name']}/{job.get('id', '')}",
-                    'employment_type': categories.get('commitment', 'FullTime'),
-                    'team': categories.get('team', ''),
-                    'published_date': published_date,
-                })
-                
-                formatted_jobs.append(formatted_job)
+            # Override with Lever-specific fields
+            formatted_job.update({
+                'role_name': job.get('text', ''),
+                'location': location,
+                'job_link': f"https://jobs.lever.co/{company['lever_name']}/{job.get('id', '')}",
+                'employment_type': categories.get('commitment', 'FullTime'),
+                'team': categories.get('team', ''),
+                'published_date': published_date,
+            })
             
-            # Filter US-only jobs and collect statistics
-            us_jobs, stats = self.filter_and_collect_stats(formatted_jobs, company['name'])
-            return us_jobs
+            formatted_jobs.append(formatted_job)
+        
+        # Filter US-only jobs and collect statistics
+        us_jobs, stats = self.filter_and_collect_stats(formatted_jobs, company['name'])
+        return us_jobs
 
 
 async def main():
