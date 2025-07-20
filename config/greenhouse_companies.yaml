@@ -1,0 +1,28 @@
+# Greenhouse Companies Configuration
+# URLs are auto-generated from board_name
+# API URL: https://boards-api.greenhouse.io/v1/boards/{board_name}/jobs
+companies:
+  - name: Databricks
+    board_name: databricks
+  - name: Skydio
+    board_name: skydio
+  - name: MongoDB
+    board_name: mongodb
+  - name: Vannevar Labs
+    board_name: vannevarlabs
+  - name: Ridgeline
+    board_name: ridgeline
+  - name: Labelbox
+    board_name: labelbox
+  - name: Chaos Industries
+    board_name: chaosindustries
+  - name: Datavations
+    board_name: datavations
+  - name: Together AI
+    board_name: togetherai
+  - name: Engine
+    board_name: engine
+  - name: YouCom
+    board_name: youcom
+  - name: Hebbia
+    board_name: hebbia

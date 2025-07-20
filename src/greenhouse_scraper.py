@@ -10,8 +10,9 @@ import logging
 import aiohttp
 from typing import List, Dict
 from base_scraper import AsyncBaseScraper
-from location_filter import is_us_location
 import config
+from models import Job, JobSource
+from utils import log_scraper_start, with_error_handling
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +21,10 @@ class AsyncGreenhouseScraper(AsyncBaseScraper):
     def __init__(self, config_path: str = None):
         super().__init__(config_path or str(config.GREENHOUSE_CONFIG))
     
+    @with_error_handling(default_return=[])
     async def scrape_company(self, session: aiohttp.ClientSession, company: Dict) -> List[Dict]:
         """Scrape jobs from a single company asynchronously"""
-        logger.info(f"🔍 Starting async Greenhouse scrape of {company['name']}...")
-        
-        try:
+        log_scraper_start(company['name'], 'Greenhouse', logger)
             # Use Greenhouse API
             api_url = config.GREENHOUSE_API_URL.format(board_name=company['board_name'])
             
@@ -45,62 +45,31 @@ class AsyncGreenhouseScraper(AsyncBaseScraper):
             # Format data
             formatted_jobs = []
             for job in fde_jobs:
+                # Create base job dict
+                formatted_job = self.create_job_dict(job, company, JobSource.GREENHOUSE)
+                
                 # Extract department info
                 departments = job.get('departments', [])
                 department_name = departments[0].get('name', '') if departments else ''
                 
-                formatted_job = {
+                # Override with Greenhouse-specific fields
+                formatted_job.update({
                     'role_name': job.get('title', ''),
-                    'company_name': company['name'],
                     'location': job.get('location', {}).get('name', ''),
                     'job_link': job.get('absolute_url', ''),
-                    'employment_type': 'FullTime',  # Greenhouse doesn't specify this in API
                     'team': department_name,
                     'published_date': job.get('updated_at', '').split('T')[0] if job.get('updated_at') else '',
-                    'compensation': 'Not disclosed',  # Greenhouse API doesn't include compensation
-                    'job_id': str(job.get('id', '')),
-                    'source': 'Greenhouse'
-                }
+                })
+                
                 formatted_jobs.append(formatted_job)
             
             # Filter US-only jobs and collect statistics
-            us_jobs = []
-            non_us_jobs = []
-            
-            for job in formatted_jobs:
-                location = job.get('location', '')
-                if is_us_location(location):
-                    us_jobs.append(job)
-                else:
-                    non_us_jobs.append(job)
-            
-            # Log detailed statistics
-            total_jobs = len(formatted_jobs)
-            us_count = len(us_jobs)
-            non_us_count = len(non_us_jobs)
-            
-            logger.info(f"📊 {company['name']} Statistics:")
-            logger.info(f"  Total jobs scraped: {total_jobs}")
-            logger.info(f"  US jobs: {us_count}")
-            logger.info(f"  Non-US jobs: {non_us_count}")
-            
-            if non_us_jobs:
-                non_us_locations = [job.get('location', 'Unknown') for job in non_us_jobs]
-                logger.info(f"  Non-US locations: {', '.join(non_us_locations)}")
-                
+            us_jobs, stats = self.filter_and_collect_stats(formatted_jobs, company['name'])
             return us_jobs
-            
-        except asyncio.TimeoutError:
-            logger.error(f"Timeout while scraping {company['name']}")
-            return []
-        except Exception as e:
-            logger.error(f"Error scraping {company['name']}: {e}")
-            return []
 
 
 async def main():
     """Test the async Greenhouse scraper"""
-    import asyncio
     
     # Configure logging
     logging.basicConfig(
@@ -126,5 +95,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
