@@ -4,7 +4,7 @@ Scraper Factory for Fast Job Agent
 """
 
 from typing import Dict, Type, List
-from models import JobSource, ScraperConfig
+from models import JobSource
 from base_scraper import AsyncBaseScraper
 from ashby_scraper import AsyncAshbyScraper
 from greenhouse_scraper import AsyncGreenhouseScraper
@@ -22,25 +22,11 @@ class ScraperFactory:
         JobSource.LEVER: AsyncLeverScraper,
     }
     
-    # Default configurations
-    _configs: Dict[JobSource, ScraperConfig] = {
-        JobSource.ASHBY: ScraperConfig(
-            name="Ashby",
-            config_path=str(config.ASHBY_CONFIG),
-            source=JobSource.ASHBY
-        ),
-        JobSource.GREENHOUSE: ScraperConfig(
-            name="Greenhouse",
-            config_path=str(config.GREENHOUSE_CONFIG),
-            source=JobSource.GREENHOUSE,
-            api_url_template=config.GREENHOUSE_API_URL
-        ),
-        JobSource.LEVER: ScraperConfig(
-            name="Lever",
-            config_path=str(config.LEVER_CONFIG),
-            source=JobSource.LEVER,
-            api_url_template=config.LEVER_API_URL
-        ),
+    # Configuration paths
+    _configs: Dict[JobSource, str] = {
+        JobSource.ASHBY: str(config.ASHBY_CONFIG),
+        JobSource.GREENHOUSE: str(config.GREENHOUSE_CONFIG),
+        JobSource.LEVER: str(config.LEVER_CONFIG),
     }
     
     @classmethod
@@ -62,7 +48,7 @@ class ScraperFactory:
             raise ValueError(f"Unsupported scraper source: {source}")
         
         scraper_class = cls._scrapers[source]
-        config_path = config_path or cls._configs[source].config_path
+        config_path = config_path or cls._configs[source]
         
         return scraper_class(config_path)
     
@@ -92,14 +78,3 @@ class ScraperFactory:
             List of supported job sources
         """
         return list(cls._scrapers.keys())
-    
-    @classmethod
-    def register_scraper(cls, source: JobSource, scraper_class: Type[AsyncBaseScraper]):
-        """
-        Register a new scraper type
-        
-        Args:
-            source: Job source
-            scraper_class: Scraper class to register
-        """
-        cls._scrapers[source] = scraper_class

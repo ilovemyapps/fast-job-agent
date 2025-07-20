@@ -4,10 +4,11 @@
 # Change to script directory
 cd "$(dirname "$0")"
 
-# Clean up old log files
-echo "🧹 Cleaning up old log files..."
+# Create logs directory if it doesn't exist
+mkdir -p logs
+
+# Clean up old run log to prevent file bloat
 rm -f logs/run.log
-rm -f logs/cron.log
 
 # Activate virtual environment if exists
 if [ -f "venv/bin/activate" ]; then
@@ -24,7 +25,7 @@ else
 fi
 
 # Run job aggregator (includes all scrapers + deduplication)
-python3 src/job_aggregator.py
+python3 src/job_aggregator.py >> logs/run.log 2>&1
 
 # Record run time
 echo "Completed at: $(date)" >> logs/run.log

@@ -80,10 +80,3 @@ class JobStats:
             self.non_us_locations.append(location)
 
 
-@dataclass
-class ScraperConfig:
-    """Configuration for a scraper"""
-    name: str
-    config_path: str
-    source: JobSource
-    api_url_template: Optional[str] = None
