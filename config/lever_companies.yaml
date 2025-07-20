@@ -1,6 +1,0 @@
-# Lever Companies Configuration
-# URLs are auto-generated from lever_name
-# API URL: https://api.lever.co/v0/postings/{lever_name}?mode=json
-companies:
-  - name: Palantir Technologies
-    lever_name: palantir
