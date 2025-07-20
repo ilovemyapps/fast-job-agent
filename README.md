@@ -268,20 +268,6 @@ processed_jobs = processor.process_jobs(jobs)
 4. **Data Validation**: Leverage dataclass for type checking
 5. **Log Monitoring**: Regularly check log files and monitor scraping quality
 
-## 📚 Documentation
-
-- [CRON_SETUP.md](CRON_SETUP.md) - Scheduled task configuration
-- [API_DOCS.md](docs/API_DOCS.md) - Detailed API documentation  
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guide
-- [CHANGELOG.md](CHANGELOG.md) - Version update history
-
-## 🤝 Contributing
-
-Welcome to submit Issues and Pull Requests! Please ensure:
-- Follow existing code style
-- Add appropriate tests
-- Update relevant documentation
-- Use decorators and data models
 
 ## 📄 License
 
