@@ -10,10 +10,13 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import yaml
 import config
 from location_filter import is_us_location
+from models import Job, JobStats, JobSource
+from utils import log_job_statistics, log_scraper_start, with_error_handling
+from utils.logging_utils import EMOJI_SUCCESS, EMOJI_ERROR
 
 logger = logging.getLogger(__name__)
 
@@ -52,17 +55,58 @@ class AsyncBaseScraper(ABC):
                 
         return filtered_jobs
     
-    def _filter_us_jobs(self, jobs: List[Dict]) -> List[Dict]:
-        """Filter jobs to only include US-based positions using intelligent detection"""
+    def filter_and_collect_stats(self, jobs: List[Dict], company_name: str) -> Tuple[List[Dict], JobStats]:
+        """
+        Filter US jobs and collect statistics
+        
+        Args:
+            jobs: List of job dictionaries
+            company_name: Name of the company for logging
+            
+        Returns:
+            Tuple of (us_jobs, stats)
+        """
+        stats = JobStats()
         us_jobs = []
+        
         for job in jobs:
             location = job.get('location', '')
-            
-            # Use intelligent location detection
             if is_us_location(location):
                 us_jobs.append(job)
+                stats.add_us_job()
+            else:
+                stats.add_non_us_job(location)
         
-        return us_jobs
+        # Log statistics
+        log_job_statistics(company_name, stats, logger)
+        
+        return us_jobs, stats
+    
+    def create_job_dict(self, raw_job: Dict, company: Dict, source: JobSource) -> Dict:
+        """
+        Create standardized job dictionary from raw job data
+        
+        Args:
+            raw_job: Raw job data from API
+            company: Company configuration
+            source: Job source (Ashby, Greenhouse, Lever)
+            
+        Returns:
+            Standardized job dictionary
+        """
+        # Default field mapping - subclasses can override
+        return {
+            'role_name': raw_job.get('title', raw_job.get('text', '')),
+            'company_name': company['name'],
+            'location': raw_job.get('location', ''),
+            'job_link': '',  # Subclasses must set this
+            'employment_type': 'FullTime',
+            'team': '',
+            'published_date': '',
+            'compensation': 'Not disclosed',
+            'source': source.value,
+            'job_id': str(raw_job.get('id', ''))
+        }
     
     @abstractmethod
     async def scrape_company(self, session: aiohttp.ClientSession, company: Dict) -> List[Dict]:

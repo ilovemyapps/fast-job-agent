@@ -8,11 +8,11 @@ import asyncio
 import json
 import logging
 import aiohttp
-from datetime import datetime
 from typing import List, Dict
 from base_scraper import AsyncBaseScraper
-from location_filter import is_us_location
 import config
+from models import Job, JobSource
+from utils import log_scraper_start, with_error_handling, timestamp_to_date
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +21,10 @@ class AsyncLeverScraper(AsyncBaseScraper):
     def __init__(self, config_path: str = None):
         super().__init__(config_path or str(config.LEVER_CONFIG))
     
+    @with_error_handling(default_return=[])
     async def scrape_company(self, session: aiohttp.ClientSession, company: Dict) -> List[Dict]:
         """Scrape jobs from a single company asynchronously"""
-        logger.info(f"🔍 Starting async Lever scrape of {company['name']}...")
-        
-        try:
+        log_scraper_start(company['name'], 'Lever', logger)
             # Use Lever API
             api_url = config.LEVER_API_URL.format(company_name=company['lever_name'])
             
@@ -45,69 +44,36 @@ class AsyncLeverScraper(AsyncBaseScraper):
             # Format data
             formatted_jobs = []
             for job in fde_jobs:
-                # Extract location from categories
+                # Create base job dict
+                formatted_job = self.create_job_dict(job, company, JobSource.LEVER)
+                
+                # Extract location and other data from categories
                 categories = job.get('categories', {})
                 location = categories.get('location', '')
                 
                 # Convert timestamp to date
                 created_timestamp = job.get('createdAt', 0)
-                if created_timestamp:
-                    published_date = datetime.fromtimestamp(created_timestamp/1000).strftime('%Y-%m-%d')
-                else:
-                    published_date = ''
+                published_date = timestamp_to_date(created_timestamp) if created_timestamp else ''
                 
-                formatted_job = {
+                # Override with Lever-specific fields
+                formatted_job.update({
                     'role_name': job.get('text', ''),
-                    'company_name': company['name'],
                     'location': location,
                     'job_link': f"https://jobs.lever.co/{company['lever_name']}/{job.get('id', '')}",
                     'employment_type': categories.get('commitment', 'FullTime'),
                     'team': categories.get('team', ''),
                     'published_date': published_date,
-                    'compensation': 'Not disclosed',  # Lever API doesn't include compensation
-                    'job_id': job.get('id', ''),
-                    'source': 'Lever'
-                }
+                })
+                
                 formatted_jobs.append(formatted_job)
             
             # Filter US-only jobs and collect statistics
-            us_jobs = []
-            non_us_jobs = []
-            
-            for job in formatted_jobs:
-                location = job.get('location', '')
-                if is_us_location(location):
-                    us_jobs.append(job)
-                else:
-                    non_us_jobs.append(job)
-            
-            # Log detailed statistics
-            total_jobs = len(formatted_jobs)
-            us_count = len(us_jobs)
-            non_us_count = len(non_us_jobs)
-            
-            logger.info(f"📊 {company['name']} Statistics:")
-            logger.info(f"  Total jobs scraped: {total_jobs}")
-            logger.info(f"  US jobs: {us_count}")
-            logger.info(f"  Non-US jobs: {non_us_count}")
-            
-            if non_us_jobs:
-                non_us_locations = [job.get('location', 'Unknown') for job in non_us_jobs]
-                logger.info(f"  Non-US locations: {', '.join(non_us_locations)}")
-                
+            us_jobs, stats = self.filter_and_collect_stats(formatted_jobs, company['name'])
             return us_jobs
-            
-        except asyncio.TimeoutError:
-            logger.error(f"Timeout while scraping {company['name']}")
-            return []
-        except Exception as e:
-            logger.error(f"Error scraping {company['name']}: {e}")
-            return []
 
 
 async def main():
     """Test the async Lever scraper"""
-    import asyncio
     
     # Configure logging
     logging.basicConfig(
@@ -133,5 +99,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())

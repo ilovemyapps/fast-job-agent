@@ -11,8 +11,10 @@ import logging
 import aiohttp
 from typing import List, Dict, Optional
 from base_scraper import AsyncBaseScraper
-from location_filter import is_us_location
 import config
+from models import Job, JobSource
+from utils import log_scraper_start, with_error_handling
+from constants import URLTemplates, LogMessages, CompensationDefaults
 
 logger = logging.getLogger(__name__)
 
@@ -39,94 +41,65 @@ class AsyncAshbyScraper(AsyncBaseScraper):
             logger.error(f"JSON parsing failed: {e}")
             return None
     
+    @with_error_handling(default_return=[])
     async def scrape_company(self, session: aiohttp.ClientSession, company: Dict) -> List[Dict]:
         """Scrape jobs from a single company asynchronously"""
-        logger.info(f"🔍 Starting async scrape of {company['name']}...")
+        log_scraper_start(company['name'], 'Ashby', logger)
         
-        try:
-            async with session.get(company['url']) as response:
-                if response.status != 200:
-                    logger.error(f"HTTP {response.status} for {company['name']}")
-                    return []
-                
-                html_content = await response.text()
-            
-            # Extract data
-            app_data = self._extract_job_data(html_content)
-            if not app_data:
-                logger.error(f"Failed to extract data from {company['name']}")
+        # Generate URL from job_board_name
+        url = company.get('url') or URLTemplates.ASHBY.format(job_board_name=company['job_board_name'])
+        
+        async with session.get(url) as response:
+            if response.status != 200:
+                logger.error(LogMessages.HTTP_ERROR.format(status=response.status, company=company['name']))
                 return []
             
-            # Get job listings
-            job_board = app_data.get('jobBoard', {}) if app_data else {}
-            job_postings = job_board.get('jobPostings', []) if job_board else []
-            logger.info(f"Found {len(job_postings)} jobs from {company['name']}")
-            
-            # Filter FDE related jobs
-            fde_jobs = self._filter_fde_jobs(job_postings)
-            logger.info(f"Filtered {len(fde_jobs)} FDE related jobs from {company['name']}")
-            
-            # Format data
-            formatted_jobs = []
-            for job in fde_jobs:
-                # For VC portfolio, use departmentName as company name
-                if company.get('is_vc_portfolio', False):
-                    company_name = job.get('departmentName', company['name'])
-                else:
-                    company_name = company['name']
-                
-                formatted_job = {
-                    'role_name': job.get('title', ''),
-                    'company_name': company_name,
-                    'location': job.get('locationName', ''),
-                    'job_link': f"https://jobs.ashbyhq.com/{company['job_board_name']}/{job.get('id', '')}",
-                    'employment_type': job.get('employmentType', ''),
-                    'team': job.get('teamName', ''),
-                    'published_date': job.get('publishedDate', ''),
-                    'compensation': job.get('compensationTierSummary', 'Not disclosed'),
-                    'source': 'Ashby',
-                    'job_id': job.get('id', '')
-                }
-                formatted_jobs.append(formatted_job)
-            
-            # Filter US-only jobs and collect statistics
-            us_jobs = []
-            non_us_jobs = []
-            
-            for job in formatted_jobs:
-                location = job.get('location', '')
-                if is_us_location(location):
-                    us_jobs.append(job)
-                else:
-                    non_us_jobs.append(job)
-            
-            # Log detailed statistics
-            total_jobs = len(formatted_jobs)
-            us_count = len(us_jobs)
-            non_us_count = len(non_us_jobs)
-            
-            logger.info(f"📊 {company['name']} Statistics:")
-            logger.info(f"  Total jobs scraped: {total_jobs}")
-            logger.info(f"  US jobs: {us_count}")
-            logger.info(f"  Non-US jobs: {non_us_count}")
-            
-            if non_us_jobs:
-                non_us_locations = [job.get('location', 'Unknown') for job in non_us_jobs]
-                logger.info(f"  Non-US locations: {', '.join(non_us_locations)}")
-                
-            return us_jobs
-            
-        except asyncio.TimeoutError:
-            logger.error(f"Timeout while scraping {company['name']}")
+            html_content = await response.text()
+        
+        # Extract data
+        app_data = self._extract_job_data(html_content)
+        if not app_data:
+            logger.error(LogMessages.EXTRACTION_ERROR.format(company=company['name']))
             return []
-        except Exception as e:
-            logger.error(f"Error scraping {company['name']}: {e}")
-            return []
+        
+        # Get job listings
+        job_board = app_data.get('jobBoard', {}) if app_data else {}
+        job_postings = job_board.get('jobPostings', []) if job_board else []
+        logger.info(LogMessages.FOUND_JOBS.format(count=len(job_postings), company=company['name']))
+        
+        # Filter FDE related jobs
+        fde_jobs = self._filter_fde_jobs(job_postings)
+        logger.info(LogMessages.FILTERED_JOBS.format(count=len(fde_jobs), company=company['name']))
+        
+        # Format data
+        formatted_jobs = []
+        for job in fde_jobs:
+            # Create base job dict
+            formatted_job = self.create_job_dict(job, company, JobSource.ASHBY)
+            
+            # Override with Ashby-specific fields
+            if company.get('is_vc_portfolio', False):
+                formatted_job['company_name'] = job.get('departmentName', company['name'])
+            
+            formatted_job.update({
+                'role_name': job.get('title', ''),
+                'location': job.get('locationName', ''),
+                'job_link': URLTemplates.ASHBY_JOB.format(job_board_name=company['job_board_name'], job_id=job.get('id', '')),
+                'employment_type': job.get('employmentType', 'FullTime'),
+                'team': job.get('teamName', ''),
+                'published_date': job.get('publishedDate', ''),
+                'compensation': job.get('compensationTierSummary', CompensationDefaults.NOT_DISCLOSED),
+            })
+            
+            formatted_jobs.append(formatted_job)
+        
+        # Filter US-only jobs and collect statistics
+        us_jobs, stats = self.filter_and_collect_stats(formatted_jobs, company['name'])
+        return us_jobs
 
 
 async def main():
     """Test the async Ashby scraper independently"""
-    import asyncio
     
     # Configure logging
     logging.basicConfig(
@@ -151,5 +124,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
