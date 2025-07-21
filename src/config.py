@@ -17,7 +17,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configuration file paths
-ASHBY_CONFIG = CONFIG_DIR / "companies.yaml"
+ASHBY_CONFIG = CONFIG_DIR / "ashby_companies.yaml"
 GREENHOUSE_CONFIG = CONFIG_DIR / "greenhouse_companies.yaml"
 LEVER_CONFIG = CONFIG_DIR / "lever_companies.yaml"
 
