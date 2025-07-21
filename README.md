@@ -4,9 +4,33 @@
 
 ## 🎯 Live Results
 
-**👀 [View Current Job Listings →](https://www.notion.so/22aa175fa91c80c1a09fe1911721e2cc)**
+**👀 [Access The Ultimate AI Job Database →](https://www.notion.so/22aa175fa91c80c1a09fe1911721e2cc)**
 
-*Real-time database of Forward Deployed Engineer and Solutions Engineer positions from 50+ top tech companies, updated daily*
+### 🚀 The Most Comprehensive AI & Tech Job Intelligence Platform
+
+**Want to land at the next unicorn? You need a bigger funnel.** 
+
+Our database tracks **109 carefully curated companies** across the entire AI ecosystem - from $157B OpenAI to seed-stage startups that could be tomorrow's giants.
+
+#### 📊 Company Coverage Breakdown:
+- 🤖 **AI/ML Platforms**: 26 companies (OpenAI, Anthropic, xAI, Harvey, Cursor, Scale AI...)
+- 🛠️ **Developer Tools**: 18 companies (MongoDB, Databricks, Sourcegraph...)  
+- 🔒 **Security**: 12 companies (Abnormal Security, Chainguard, Semgrep...)
+- 💼 **Enterprise SaaS**: 15 companies (Addepar, Glean, SendBird...)
+- 📈 **Data/Analytics**: 10 companies (AlphaSense, Labelbox, Cribl...)
+- 💰 **FinTech**: 8 companies (Mercury, Bilt Rewards, Ridgeline...)
+- 🤖 **Hardware/Robotics**: 8 companies (Skydio, Gecko Robotics, Anduril...)
+- 🏥 **HealthTech**: 7 companies (Abridge, Anterior, Bayesian Health...)
+
+#### 💸 Funding Stage Distribution:
+- 🌟 **Unicorns ($1B+)**: 15 companies
+- 📈 **Series C-D**: 12 companies  
+- 🚀 **Series B**: 20 companies
+- 💡 **Series A**: 25 companies
+- 🌱 **Early Stage**: 30 companies
+- 📊 **Public**: 3 companies (Palantir, MongoDB, Addepar)
+
+**Updated daily.** **Zero noise.** **Maximum opportunity.**
 
 ---
 
