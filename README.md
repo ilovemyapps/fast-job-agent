@@ -112,7 +112,7 @@ async def scrape_all(self, max_concurrent=5):
 
 ### Basic Configuration
 ```yaml
-# config/companies.yaml (Ashby)
+# config/ashby_companies.yaml
 companies:
   - name: OpenAI
     job_board_name: openai
