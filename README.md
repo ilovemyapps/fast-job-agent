@@ -13,14 +13,14 @@
 Our database tracks **109 carefully curated companies** across the entire AI ecosystem - from $157B OpenAI to seed-stage startups that could be tomorrow's giants.
 
 #### 📊 Company Coverage Breakdown:
-- 🤖 **AI/ML Platforms**: 26 companies (OpenAI, Anthropic, xAI, Harvey, Cursor, Scale AI...)
-- 🛠️ **Developer Tools**: 18 companies (MongoDB, Databricks, Sourcegraph...)  
-- 🔒 **Security**: 12 companies (Abnormal Security, Chainguard, Semgrep...)
-- 💼 **Enterprise SaaS**: 15 companies (Addepar, Glean, SendBird...)
-- 📈 **Data/Analytics**: 10 companies (AlphaSense, Labelbox, Cribl...)
-- 💰 **FinTech**: 8 companies (Mercury, Bilt Rewards, Ridgeline...)
-- 🤖 **Hardware/Robotics**: 8 companies (Skydio, Gecko Robotics, Anduril...)
-- 🏥 **HealthTech**: 7 companies (Abridge, Anterior, Bayesian Health...)
+- 🤖 **AI/ML Platforms**: 26 companies (Harvey, Cursor, Writer, ElevenLabs, Poolside, Hebbia...)
+- 🛠️ **AI-Powered Developer Tools**: 18 companies (Stainless API, Mintlify, OneSchema, Cribl...)  
+- 🔒 **AI Security**: 12 companies (Abnormal Security, Chainguard, Kasada, Semgrep...)
+- 💼 **AI Enterprise SaaS**: 15 companies (Glean, SendBird, FieldGuide, Tandem...)
+- 📈 **AI Data/Analytics**: 10 companies (AlphaSense, Labelbox, Tonic AI, CSS...)
+- 💰 **AI FinTech**: 8 companies (Mercury, Bilt Rewards, Ridgeline, Extend...)
+- 🤖 **AI Hardware/Robotics**: 8 companies (Gecko Robotics, SandboxAQ, Celestial AI, Rain...)
+- 🏥 **AI HealthTech**: 7 companies (Abridge, Anterior, Bayesian Health, Tennr...)
 
 #### 💸 Funding Stage Distribution:
 - 🌟 **Unicorns ($1B+)**: 15 companies
@@ -28,7 +28,6 @@ Our database tracks **109 carefully curated companies** across the entire AI eco
 - 🚀 **Series B**: 20 companies
 - 💡 **Series A**: 25 companies
 - 🌱 **Early Stage**: 30 companies
-- 📊 **Public**: 3 companies (Palantir, MongoDB, Addepar)
 
 **Updated daily.** **Zero noise.** **Maximum opportunity.**
 
