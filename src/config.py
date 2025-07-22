@@ -27,7 +27,7 @@ LEVER_API_URL = "https://api.lever.co/v0/postings/{company_name}?mode=json"
 
 # Scraping settings
 REQUEST_DELAY = 2  # seconds between requests
-REQUEST_TIMEOUT = 10  # seconds
+REQUEST_TIMEOUT = 30  # seconds - increased for large companies like Databricks
 
 # Logging settings
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

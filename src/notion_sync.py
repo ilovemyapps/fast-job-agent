@@ -212,6 +212,23 @@ class NotionSync:
         
         return stats
     
+    def clear_all_cache(self) -> int:
+        """
+        Clear all cached job IDs - useful when Notion database is recreated
+        Returns number of items cleared
+        """
+        try:
+            old_count = len(self.synced_jobs)
+            self.synced_jobs.clear()
+            self._save_synced_jobs()
+            
+            logger.info(f"🧹 Cleared all cache: removed {old_count} job IDs")
+            return old_count
+            
+        except Exception as e:
+            logger.error(f"Error clearing cache: {e}")
+            return 0
+    
     def cleanup_old_cache(self, days_threshold: int = 90) -> int:
         """
         Clean up job IDs that are older than threshold days from cache

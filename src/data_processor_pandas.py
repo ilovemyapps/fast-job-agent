@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Dict
 import pandas as pd
-from location_filter import is_us_location
+from location_filter import is_us_location_sync
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class JobDataProcessor:
         
         for job in jobs:
             location = job.get('location', '')
-            if is_us_location(location):
+            if is_us_location_sync(location):
                 us_jobs.append(job)
             else:
                 non_us_jobs.append(job)
@@ -126,8 +126,9 @@ class JobDataProcessor:
         
     def deduplicate_jobs(self, jobs: List[Dict]) -> List[Dict]:
         """
-        Remove duplicate jobs based on company_name + role_name + location
-        Keep the first occurrence (priority to source doesn't matter)
+        Smart deduplication with location consolidation:
+        1. Same company + role name + location: remove exact duplicates
+        2. Same company + role name but different locations: merge locations, keep one job
         """
         if not jobs:
             return []
@@ -135,27 +136,77 @@ class JobDataProcessor:
         # Create DataFrame for easier processing
         df = pd.DataFrame(jobs)
         
-        # Create a composite key for deduplication
-        df['dedup_key'] = df['company_name'].str.lower() + '|' + df['role_name'].str.lower() + '|' + df['location'].str.lower()
+        # Step 1: Remove exact duplicates (same company + role + location)
+        df['exact_dedup_key'] = df['company_name'].str.lower() + '|' + df['role_name'].str.lower() + '|' + df['location'].str.lower()
+        df = df.drop_duplicates(subset=['exact_dedup_key'], keep='first')
+        df = df.drop('exact_dedup_key', axis=1)
         
-        # Count duplicates before deduplication
+        # Step 2: Group by company + role name for location consolidation
+        role_dedup_key = df['company_name'].str.lower() + '|' + df['role_name'].str.lower()
+        df['role_dedup_key'] = role_dedup_key
+        
+        # Group jobs by company + role
+        grouped = df.groupby('role_dedup_key')
+        consolidated_jobs = []
+        
         total_before = len(df)
-        duplicates_count = df.duplicated(subset=['dedup_key']).sum()
+        location_consolidations = 0
         
-        # Remove duplicates, keeping first occurrence
-        df_deduplicated = df.drop_duplicates(subset=['dedup_key'], keep='first')
+        for group_key, group_df in grouped:
+            if len(group_df) == 1:
+                # Single job, no consolidation needed
+                job_dict = group_df.iloc[0].to_dict()
+                if 'role_dedup_key' in job_dict:
+                    del job_dict['role_dedup_key']
+                consolidated_jobs.append(job_dict)
+            else:
+                # Multiple jobs with same company + role, consolidate locations
+                location_consolidations += len(group_df) - 1
+                
+                # Sort by location to have consistent selection
+                group_df_sorted = group_df.sort_values('location')
+                
+                # Use the first job as base (after sorting by location)
+                base_job = group_df_sorted.iloc[0].to_dict()
+                
+                # Collect all unique locations
+                all_locations = []
+                all_links = []
+                for _, row in group_df_sorted.iterrows():
+                    location = row['location'].strip()
+                    if location and location not in all_locations:
+                        all_locations.append(location)
+                    
+                    link = row.get('job_link', '').strip()
+                    if link and link not in all_links:
+                        all_links.append(link)
+                
+                # Consolidate locations with semicolon separator
+                base_job['location'] = '; '.join(all_locations)
+                
+                # Use the first job link (from sorted order)
+                if all_links:
+                    base_job['job_link'] = all_links[0]
+                
+                # Clean up temporary key
+                if 'role_dedup_key' in base_job:
+                    del base_job['role_dedup_key']
+                
+                consolidated_jobs.append(base_job)
+                
+                # Log the consolidation
+                company = base_job.get('company_name', 'Unknown')
+                role = base_job.get('role_name', 'Unknown')
+                logger.info(f"🔄 Consolidated {len(group_df)} jobs for {company} - {role} into locations: {base_job['location']}")
         
-        # Remove the temporary dedup_key column
-        df_deduplicated = df_deduplicated.drop('dedup_key', axis=1)
+        total_after = len(consolidated_jobs)
         
-        total_after = len(df_deduplicated)
-        
-        if duplicates_count > 0:
-            logger.info(f"Removed {duplicates_count} duplicate jobs ({total_before} -> {total_after})")
+        if location_consolidations > 0:
+            logger.info(f"✅ Location consolidation: {location_consolidations} duplicate roles merged ({total_before} -> {total_after} jobs)")
         else:
-            logger.info(f"No duplicates found ({total_before} jobs)")
+            logger.info(f"No location consolidations needed ({total_before} jobs)")
             
-        return df_deduplicated.to_dict('records')
+        return consolidated_jobs
     def merge_and_deduplicate(self, ashby_jobs: List[Dict], greenhouse_jobs: List[Dict], lever_jobs: List[Dict] = None) -> List[Dict]:
         """
         Merge jobs from multiple sources, filter non-US locations, filter old jobs, and remove duplicates
