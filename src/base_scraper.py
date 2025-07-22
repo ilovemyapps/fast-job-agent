@@ -9,6 +9,7 @@ import aiohttp
 import logging
 import time
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Dict, Tuple
 import yaml
@@ -39,6 +40,42 @@ class AsyncBaseScraper(ABC):
             config = yaml.safe_load(f)
         return config.get('companies', [])
     
+    def _filter_recent_jobs(self, jobs: List[Dict], months: int = 12) -> List[Dict]:
+        """Filter jobs published within the last N months"""
+        cutoff_date = datetime.now() - timedelta(days=months * 30)
+        recent_jobs = []
+        
+        for job in jobs:
+            # Get date field - different platforms use different field names
+            date_str = (job.get('updated_at') or 
+                       job.get('created_at') or 
+                       job.get('createdAt') or 
+                       job.get('publishedAt') or
+                       job.get('published_date'))
+            
+            if not date_str:
+                # If no date available, include the job (better safe than sorry)
+                recent_jobs.append(job)
+                continue
+                
+            try:
+                # Parse different date formats
+                if 'T' in str(date_str):
+                    # ISO format: 2024-07-20T10:30:00Z or 2024-07-20T10:30:00
+                    job_date = datetime.fromisoformat(str(date_str).replace('Z', '+00:00').split('+')[0])
+                else:
+                    # Date only: 2024-07-20
+                    job_date = datetime.strptime(str(date_str)[:10], '%Y-%m-%d')
+                    
+                if job_date >= cutoff_date:
+                    recent_jobs.append(job)
+            except (ValueError, TypeError):
+                # If date parsing fails, include the job
+                recent_jobs.append(job)
+                
+        logger.info(f"Filtered {len(recent_jobs)} recent jobs (last {months} months) from {len(jobs)} total jobs")
+        return recent_jobs
+    
     def _filter_fde_jobs(self, jobs: List[Dict]) -> List[Dict]:
         """Filter Forward Deployed Engineer related positions"""
         fde_keywords = config.FDE_KEYWORDS
@@ -55,7 +92,7 @@ class AsyncBaseScraper(ABC):
                 
         return filtered_jobs
     
-    def filter_and_collect_stats(self, jobs: List[Dict], company_name: str) -> Tuple[List[Dict], JobStats]:
+    async def filter_and_collect_stats(self, jobs: List[Dict], company_name: str) -> Tuple[List[Dict], JobStats]:
         """
         Filter US jobs and collect statistics
         
@@ -71,7 +108,7 @@ class AsyncBaseScraper(ABC):
         
         for job in jobs:
             location = job.get('location', '')
-            if is_us_location(location):
+            if await is_us_location(location):
                 us_jobs.append(job)
                 stats.add_us_job()
             else:
@@ -120,7 +157,7 @@ class AsyncBaseScraper(ABC):
             return []
         
         connector = aiohttp.TCPConnector(limit=20, limit_per_host=5)
-        timeout = aiohttp.ClientTimeout(total=30, connect=10)
+        timeout = aiohttp.ClientTimeout(total=60, connect=15)  # Increased for large companies
         
         async with aiohttp.ClientSession(
             connector=connector,

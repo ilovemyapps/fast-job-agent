@@ -6,6 +6,8 @@ Intelligent US location detection with multiple fallback strategies
 
 import re
 import logging
+import time
+import asyncio
 from typing import Optional, Dict, Any
 import requests
 
@@ -19,22 +21,29 @@ class LocationFilter:
         # Cache for API results
         self._cache: Dict[str, bool] = {}
         
+        # Rate limiting for Nominatim API (1 request per second)
+        self._last_api_call: float = 0
+        
         # High-confidence patterns
         self.us_patterns = [
-            r'\b(remote|us\s*-?\s*remote)\b',
+            r'^remote$|^us\s*-?\s*remote$',  # Only match pure "Remote" or "US Remote", not "Remote - Country"
             r'\b\w+,\s*(al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy)\b',
             r'\b(new york|san francisco|los angeles|chicago|boston|seattle|austin|denver|atlanta|miami)\b',
             r'\b(california|texas|florida|new york|washington)\b',
-            r'\b(silicon valley|bay area|nyc|sf)\b'
+            r'\b(silicon valley|bay area|nyc|sf)\b',
+            r'\busa\b|\bunited states\b'  # Add explicit USA patterns
         ]
         
         self.non_us_patterns = [
+            r'remote\s*-\s*(canada|singapore|india|uk|europe|asia|latam)',  # Remote - Country patterns
             r'\b(london|uk|united kingdom|england|britain)\b',
-            r'\b(singapore|germany|france|canada|australia|japan|china|india)\b',
-            r'\b(toronto|vancouver|sydney|melbourne|tokyo|beijing|mumbai|bangalore)\b'
+            r'\b(singapore|germany|france|canada|australia|japan|china|india|brazil|korea)\b',
+            r'\b(toronto|vancouver|sydney|melbourne|tokyo|beijing|mumbai|bangalore|bengaluru|pune|chennai|hyderabad|delhi|kolkata|sao paulo|são paulo|seoul)\b',
+            r'\b(mexico|argentina|chile|colombia|peru|spain|italy|netherlands|poland|sweden)\b',
+            r'\b(dublin|paris|berlin|amsterdam|stockholm|madrid|rome|warsaw)\b'
         ]
     
-    def is_us_location(self, location: str) -> bool:
+    async def is_us_location(self, location: str) -> bool:
         """
         Determine if a location is in the US using multiple strategies
         
@@ -42,7 +51,7 @@ class LocationFilter:
         1. Cache lookup
         2. Pattern matching (high confidence)
         3. Geocoding API (with caching)
-        4. Conservative fallback (assume US)
+        4. Conservative fallback (filter out unknown)
         """
         if not location or not location.strip():
             return True
@@ -61,36 +70,46 @@ class LocationFilter:
             return result
         
         # 3. Try geocoding API (with timeout and error handling)
-        result = self._geocode_location(location)
+        result = await self._geocode_location(location)
         if result is not None:
             self._cache[location_key] = result
             return result
         
-        # 4. Conservative fallback: assume US
-        logger.debug(f"Unknown location '{location}', assuming US")
-        self._cache[location_key] = True
-        return True
+        # 4. Conservative fallback: filter out unknown locations (better safe than sorry)
+        logger.warning(f"Unknown location '{location}', filtering out for safety")
+        self._cache[location_key] = False
+        return False
     
     def _pattern_match(self, location_lower: str) -> Optional[bool]:
         """Fast pattern-based detection for common cases"""
         
-        # Check US patterns
-        for pattern in self.us_patterns:
-            if re.search(pattern, location_lower, re.IGNORECASE):
-                logger.debug(f"Location '{location_lower}' matched US pattern: {pattern}")
-                return True
-        
-        # Check non-US patterns
+        # Check non-US patterns FIRST (higher priority)
         for pattern in self.non_us_patterns:
             if re.search(pattern, location_lower, re.IGNORECASE):
                 logger.debug(f"Location '{location_lower}' matched non-US pattern: {pattern}")
                 return False
         
+        # Then check US patterns
+        for pattern in self.us_patterns:
+            if re.search(pattern, location_lower, re.IGNORECASE):
+                logger.debug(f"Location '{location_lower}' matched US pattern: {pattern}")
+                return True
+        
         return None  # No pattern match
     
-    def _geocode_location(self, location: str) -> Optional[bool]:
-        """Use geocoding API as fallback"""
+    async def _geocode_location(self, location: str) -> Optional[bool]:
+        """Use geocoding API as fallback with rate limiting"""
         try:
+            # Rate limiting: Nominatim requires max 1 request per second
+            current_time = time.time()
+            time_since_last_call = current_time - self._last_api_call
+            if time_since_last_call < 1.1:  # 1.1s to be safe
+                sleep_time = 1.1 - time_since_last_call
+                logger.debug(f"Rate limiting: sleeping for {sleep_time:.2f}s")
+                await asyncio.sleep(sleep_time)  # 🔥 修复：使用asyncio.sleep
+            
+            self._last_api_call = time.time()
+            
             # Use free Nominatim API (OpenStreetMap)
             url = "https://nominatim.openstreetmap.org/search"
             params = {
@@ -100,10 +119,12 @@ class LocationFilter:
                 'addressdetails': 1
             }
             headers = {
-                'User-Agent': 'FastJobAgent/1.0 (job-scraper)'
+                'User-Agent': 'FastJobAgent/1.0 (https://github.com/shuai/fast-job-agent; job-scraper)',
+                'Accept': 'application/json',
+                'Accept-Language': 'en-US,en;q=0.9'
             }
             
-            response = requests.get(url, params=params, headers=headers, timeout=3)
+            response = requests.get(url, params=params, headers=headers, timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 
@@ -137,9 +158,32 @@ class LocationFilter:
 # Global instance
 _location_filter = LocationFilter()
 
-def is_us_location(location: str) -> bool:
-    """Convenience function for location filtering"""
-    return _location_filter.is_us_location(location)
+async def is_us_location(location: str) -> bool:
+    """Async convenience function for location filtering"""
+    return await _location_filter.is_us_location(location)
+
+def is_us_location_sync(location: str) -> bool:
+    """Sync convenience function for location filtering (uses cache only for performance)"""
+    if not location or not location.strip():
+        return True
+        
+    location = location.strip()
+    location_key = location.lower()
+    
+    # 1. Check cache first
+    if location_key in _location_filter._cache:
+        return _location_filter._cache[location_key]
+    
+    # 2. Pattern matching (high confidence)
+    result = _location_filter._pattern_match(location_key)
+    if result is not None:
+        _location_filter._cache[location_key] = result
+        return result
+    
+    # 3. Conservative fallback: filter out unknown locations
+    logger.warning(f"Unknown location '{location}' (sync mode), filtering out for safety")
+    _location_filter._cache[location_key] = False
+    return False
 
 def get_location_cache_stats() -> Dict[str, Any]:
     """Get location filter cache statistics"""

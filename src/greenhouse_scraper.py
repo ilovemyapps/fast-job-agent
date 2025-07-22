@@ -39,8 +39,11 @@ class AsyncGreenhouseScraper(AsyncBaseScraper):
         all_jobs = data.get('jobs', [])
         logger.info(f"Found {len(all_jobs)} jobs from {company['name']}")
         
-        # Filter FDE related jobs
-        fde_jobs = self._filter_fde_jobs(all_jobs)
+        # Filter recent jobs first (optimization to reduce processing time)
+        recent_jobs = self._filter_recent_jobs(all_jobs, months=12)
+        
+        # Filter FDE related jobs from recent jobs only
+        fde_jobs = self._filter_fde_jobs(recent_jobs)
         logger.info(f"Filtered {len(fde_jobs)} FDE related jobs from {company['name']}")
         
         # Format data
@@ -65,7 +68,7 @@ class AsyncGreenhouseScraper(AsyncBaseScraper):
             formatted_jobs.append(formatted_job)
         
         # Filter US-only jobs and collect statistics
-        us_jobs, stats = self.filter_and_collect_stats(formatted_jobs, company['name'])
+        us_jobs, stats = await self.filter_and_collect_stats(formatted_jobs, company['name'])
         return us_jobs
 
 

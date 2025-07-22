@@ -67,8 +67,11 @@ class AsyncAshbyScraper(AsyncBaseScraper):
         job_postings = job_board.get('jobPostings', []) if job_board else []
         logger.info(LogMessages.FOUND_JOBS.format(count=len(job_postings), company=company['name']))
         
-        # Filter FDE related jobs
-        fde_jobs = self._filter_fde_jobs(job_postings)
+        # Filter recent jobs first (optimization to reduce processing time)
+        recent_jobs = self._filter_recent_jobs(job_postings, months=12)
+        
+        # Filter FDE related jobs from recent jobs only
+        fde_jobs = self._filter_fde_jobs(recent_jobs)
         logger.info(LogMessages.FILTERED_JOBS.format(count=len(fde_jobs), company=company['name']))
         
         # Format data
@@ -94,7 +97,7 @@ class AsyncAshbyScraper(AsyncBaseScraper):
             formatted_jobs.append(formatted_job)
         
         # Filter US-only jobs and collect statistics
-        us_jobs, stats = self.filter_and_collect_stats(formatted_jobs, company['name'])
+        us_jobs, stats = await self.filter_and_collect_stats(formatted_jobs, company['name'])
         return us_jobs
 
 

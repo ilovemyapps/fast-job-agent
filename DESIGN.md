@@ -518,6 +518,10 @@ cp config.example/ config/
 - **Testing**: Minimum 80% test coverage
 - **Async Best Practices**: Proper exception handling and resource cleanup
 
+## 15. Future Work
+1. Unify location info with Notion AI / If cannot totally fix, call SLM / LLM to resolve it. 
+2. Connect to my AI-Startup-Hunting agent and add new companies automatic each week
+
 ---
 
 *This design document reflects the current architecture as of the major refactoring completed in July 2025. For implementation details, refer to the source code and inline documentation.*
