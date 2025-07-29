@@ -10,26 +10,26 @@
 
 **Want to land at the next unicorn? You need a bigger funnel.** 
 
-Our database tracks **109 carefully curated companies** across the entire AI ecosystem - from $157B OpenAI to seed-stage startups that could be tomorrow's giants.
+Our database tracks **122 elite AI companies** across the entire ecosystem - from $80B OpenAI to seed-stage startups that could be tomorrow's giants.
 
 #### 📊 Company Coverage Breakdown:
-- 🤖 **AI/ML Platforms**: 26 companies (Harvey, Cursor, Writer, ElevenLabs, Poolside, Hebbia...)
-- 🛠️ **AI-Powered Developer Tools**: 18 companies (Stainless API, Mintlify, OneSchema, Cribl...)  
-- 🔒 **AI Security**: 12 companies (Abnormal Security, Chainguard, Kasada, Semgrep...)
-- 💼 **AI Enterprise SaaS**: 15 companies (Glean, SendBird, FieldGuide, Tandem...)
-- 📈 **AI Data/Analytics**: 10 companies (AlphaSense, Labelbox, Tonic AI, CSS...)
-- 💰 **AI FinTech**: 8 companies (Mercury, Bilt Rewards, Ridgeline, Extend...)
-- 🤖 **AI Hardware/Robotics**: 8 companies (Gecko Robotics, SandboxAQ, Celestial AI, Rain...)
-- 🏥 **AI HealthTech**: 7 companies (Abridge, Anterior, Bayesian Health, Tennr...)
+- 🤖 **AI/ML Platforms & Foundation Models**: 28 companies (OpenAI, Anthropic, xAI, Databricks, Runway ML, ElevenLabs, Hebbia, Writer, Poolside...)
+- 🛠️ **AI-Powered Developer Tools**: 22 companies (Replit, Cursor, Stainless API, BentoML, Sourcegraph, Mintlify, OneSchema, Cribl...)
+- 🔒 **AI Security & Enterprise SaaS**: 15 companies (Palantir, Abnormal Security, Harvey, Kasada, Semgrep, Chainguard, FieldGuide...)
+- 📈 **AI Data/Analytics & MLOps**: 11 companies (MongoDB, AlphaSense, Labelbox, Chalk, WorkHelix, Tonic AI...)
+- 💰 **AI FinTech & Trading**: 10 companies (Mercury, Addepar, Ridgeline, Imprint, Extend...)
+- 🤖 **AI Hardware/Robotics**: 10 companies (Anduril, Skydio, Gecko Robotics, SandboxAQ, Celestial AI, Shield AI...)
+- 🏥 **AI HealthTech & BioTech**: 8 companies (Abridge, Anterior, Bayesian Health, Flagship Pioneering, Tennr...)
+- 🏢 **Traditional Tech/SaaS**: 7 companies (SendBird, Recharge, Fleetio, Persona...)
 
 #### 💸 Funding Stage Distribution:
-- 🌟 **Unicorns ($1B+)**: 15 companies
-- 📈 **Series C-D**: 12 companies  
-- 🚀 **Series B**: 20 companies
-- 💡 **Series A**: 25 companies
-- 🌱 **Early Stage**: 30 companies
+- 🦄 **Unicorns ($1B+)**: 18 companies (OpenAI, Anthropic, xAI, Databricks, Palantir, Anduril, Replit...)
+- 📈 **Series C-D**: 15 companies  
+- 🚀 **Series B**: 22 companies
+- 💡 **Series A**: 28 companies
+- 🌱 **Early Stage**: 39 companies
 
-**Updated daily.** **Zero noise.** **Maximum opportunity.**
+**Updated daily.** **Zero noise.** **Maximum AI opportunity.**
 
 ---
 

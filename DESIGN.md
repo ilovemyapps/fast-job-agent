@@ -520,7 +520,8 @@ cp config.example/ config/
 
 ## 15. Future Work
 1. Unify location info with Notion AI / If cannot totally fix, call SLM / LLM to resolve it. 
-2. Connect to my AI-Startup-Hunting agent and add new companies automatic each week
+2. Connect to my AI-Startup-Hunting agent and add new companies automaticly each week
+3. hacker news job board add
 
 ---
 
