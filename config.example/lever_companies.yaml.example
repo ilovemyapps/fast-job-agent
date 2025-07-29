@@ -1,6 +1,0 @@
-# Lever Companies Configuration Example
-# Format: Company Name: lever_name
-companies:
-  - name: Example Technologies
-    lever_name: example
-    url: https://jobs.lever.co/example

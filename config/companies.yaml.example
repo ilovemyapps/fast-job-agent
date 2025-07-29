@@ -1,0 +1,18 @@
+companies:
+  ashby:
+    - {name: "Replit", job_board_name: "replit"}
+    - {name: "Cursor", job_board_name: "cursor"}
+    - {name: "Harvey", job_board_name: "harvey"}
+    - {name: "Writer", job_board_name: "writer"}
+
+  greenhouse:
+    - {name: "Databricks", board_name: "databricks"}
+    - {name: "Anduril", board_name: "anduril"}
+    - {name: "Scale AI", board_name: "scaleai"}
+    - {name: "Sourcegraph", board_name: "sourcegraph"}
+
+  lever:
+    - {name: "Persona", lever_name: "persona"}
+    - {name: "Kasada", lever_name: "kasada"}
+    - {name: "Shield AI", lever_name: "shieldai"}
+    - {name: "Parallel Domain", lever_name: "paralleldomain"}

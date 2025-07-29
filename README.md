@@ -113,7 +113,7 @@ print(f"Found {len(jobs)} matching positions")
 
 ### Design Patterns
 - **Factory Pattern**: `ScraperFactory` for unified scraper creation
-- **Decorator Pattern**: `@with_error_handling` `@with_retry` `@with_timing`
+- **Decorator Pattern**: `@with_error_handling` for consistent error handling
 - **Template Method**: `AsyncBaseScraper` defines common workflow
 - **Strategy Pattern**: Platform-specific implementation strategies
 
@@ -135,15 +135,21 @@ async def scrape_all(self, max_concurrent=5):
 
 ### Basic Configuration
 ```yaml
-# config/ashby_companies.yaml
+# config/companies.yaml - Unified configuration for all platforms
 companies:
-  - name: OpenAI
-    job_board_name: openai
-    # URL auto-generated: https://jobs.ashbyhq.com/openai
+  ashby:
+    - {name: "OpenAI", job_board_name: "openai"}
+    - {name: "Cursor", job_board_name: "cursor"}
+    # URL auto-generated: https://jobs.ashbyhq.com/{job_board_name}
     
-  - name: Pear VC Portfolio  
-    job_board_name: pear
-    is_vc_portfolio: true  # Special handling for VC portfolios
+  greenhouse:
+    - {name: "Databricks", board_name: "databricks"}
+    - {name: "Anthropic", board_name: "anthropic"}
+    # API URL: https://boards-api.greenhouse.io/v1/boards/{board_name}/jobs
+    
+  lever:
+    - {name: "Palantir Technologies", lever_name: "palantir"}
+    # API URL: https://api.lever.co/v0/postings/{lever_name}?mode=json
 ```
 
 ### Advanced Configuration
@@ -194,10 +200,8 @@ class Job:
 ### Decorators
 ```python
 @with_error_handling(default_return=[])
-@with_timing(log_level=logging.INFO)
-@with_retry(max_attempts=3, delay=1.0)
 async def scrape_company(self, session, company):
-    # Automatic error handling, performance monitoring, retry mechanism
+    # Automatic error handling with consistent logging
     pass
 ```
 

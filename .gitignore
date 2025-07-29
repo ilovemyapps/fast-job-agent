@@ -4,8 +4,10 @@
 # Claude Code settings (personal configurations)
 .claude/
 
-# Configuration files (company lists)
-config/
+# Configuration files (sensitive or dynamic data)
+# Note: companies.yaml is now included in version control
+config/secrets.yaml
+config/api_keys.yaml
 
 # Virtual Environment
 venv/

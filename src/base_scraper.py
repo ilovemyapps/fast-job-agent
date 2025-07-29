@@ -15,9 +15,10 @@ from typing import List, Dict, Tuple
 import yaml
 import config
 from location_filter import is_us_location
-from models import Job, JobStats, JobSource
+from models import JobStats, JobSource
 from utils import log_job_statistics, log_scraper_start, with_error_handling
 from utils.logging_utils import EMOJI_SUCCESS, EMOJI_ERROR
+from constants import JobFields
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,9 @@ logger = logging.getLogger(__name__)
 class AsyncBaseScraper(ABC):
     """Async base class for all job scrapers"""
     
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str, config_key: str = None):
         self.config_path = config_path
+        self.config_key = config_key
         self.companies = self._load_companies()
         
     def _load_companies(self) -> List[Dict]:
@@ -37,8 +39,15 @@ class AsyncBaseScraper(ABC):
             return []
             
         with open(config_file, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
-        return config.get('companies', [])
+            config_data = yaml.safe_load(f)
+        
+        if self.config_key:
+            # New unified config structure
+            companies_data = config_data.get('companies', {})
+            return companies_data.get(self.config_key, [])
+        else:
+            # Legacy config structure (fallback)
+            return config_data.get('companies', [])
     
     def _filter_recent_jobs(self, jobs: List[Dict], months: int = 12) -> List[Dict]:
         """Filter jobs published within the last N months"""
@@ -133,16 +142,16 @@ class AsyncBaseScraper(ABC):
         """
         # Default field mapping - subclasses can override
         return {
-            'role_name': raw_job.get('title', raw_job.get('text', '')),
-            'company_name': company['name'],
-            'location': raw_job.get('location', ''),
-            'job_link': '',  # Subclasses must set this
-            'employment_type': 'FullTime',
-            'team': '',
-            'published_date': '',
-            'compensation': 'Not disclosed',
-            'source': source.value,
-            'job_id': str(raw_job.get('id', ''))
+            JobFields.ROLE_NAME: raw_job.get('title', raw_job.get('text', '')),
+            JobFields.COMPANY_NAME: company['name'],
+            JobFields.LOCATION: raw_job.get('location', ''),
+            JobFields.JOB_LINK: '',  # Subclasses must set this
+            JobFields.EMPLOYMENT_TYPE: 'FullTime',
+            JobFields.TEAM: '',
+            JobFields.PUBLISHED_DATE: '',
+            JobFields.COMPENSATION: 'Not disclosed',
+            JobFields.SOURCE: source.value,
+            JobFields.JOB_ID: str(raw_job.get('id', ''))
         }
     
     @abstractmethod

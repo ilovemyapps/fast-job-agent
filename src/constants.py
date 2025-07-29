@@ -6,8 +6,8 @@ Constants for Fast Job Agent
 from enum import Enum
 
 
-class FieldNames:
-    """Standard field names for job data"""
+class JobFields:
+    """Standard field names for job data - use these to avoid typos"""
     ROLE_NAME = 'role_name'
     COMPANY_NAME = 'company_name'
     LOCATION = 'location'
