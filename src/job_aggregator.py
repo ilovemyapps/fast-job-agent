@@ -12,9 +12,8 @@ from pathlib import Path
 # Add src to path
 sys.path.append(str(Path(__file__).parent))
 
-from ashby_scraper import AsyncAshbyScraper
-from greenhouse_scraper import AsyncGreenhouseScraper
-from lever_scraper import AsyncLeverScraper
+from scraper_factory import create_scraper
+from models import JobSource
 from data_processor_pandas import JobDataProcessor
 from notion_sync import NotionSync
 
@@ -34,10 +33,10 @@ logger = logging.getLogger(__name__)
 async def run_all_scrapers_async():
     """Run all scrapers concurrently for maximum performance"""
     
-    # Initialize async scrapers
-    ashby_scraper = AsyncAshbyScraper()
-    greenhouse_scraper = AsyncGreenhouseScraper()
-    lever_scraper = AsyncLeverScraper()
+    # Initialize async scrapers using factory
+    ashby_scraper = create_scraper(JobSource.ASHBY)
+    greenhouse_scraper = create_scraper(JobSource.GREENHOUSE)
+    lever_scraper = create_scraper(JobSource.LEVER)
     
     logger.info("🚀 Starting async scraping of all platforms...")
     start_time = time.time()

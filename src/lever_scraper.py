@@ -11,15 +11,15 @@ import aiohttp
 from typing import List, Dict
 from base_scraper import AsyncBaseScraper
 import config
-from models import Job, JobSource
+from models import JobSource
 from utils import log_scraper_start, with_error_handling, timestamp_to_date
 
 logger = logging.getLogger(__name__)
 
 
 class AsyncLeverScraper(AsyncBaseScraper):
-    def __init__(self, config_path: str = None):
-        super().__init__(config_path or str(config.LEVER_CONFIG))
+    def __init__(self, config_path: str = None, config_key: str = None):
+        super().__init__(config_path or str(config.COMPANIES_CONFIG), config_key or 'lever')
     
     @with_error_handling(default_return=[])
     async def scrape_company(self, session: aiohttp.ClientSession, company: Dict) -> List[Dict]:

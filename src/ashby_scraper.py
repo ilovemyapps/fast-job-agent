@@ -12,7 +12,7 @@ import aiohttp
 from typing import List, Dict, Optional
 from base_scraper import AsyncBaseScraper
 import config
-from models import Job, JobSource
+from models import JobSource
 from utils import log_scraper_start, with_error_handling
 from constants import URLTemplates, LogMessages, CompensationDefaults
 
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class AsyncAshbyScraper(AsyncBaseScraper):
-    def __init__(self, config_path: str = None):
-        super().__init__(config_path or str(config.ASHBY_CONFIG))
+    def __init__(self, config_path: str = None, config_key: str = None):
+        super().__init__(config_path or str(config.COMPANIES_CONFIG), config_key or 'ashby')
         
     def _extract_job_data(self, html_content: str) -> Optional[Dict]:
         """Extract job data from HTML"""
