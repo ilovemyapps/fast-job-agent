@@ -5,7 +5,7 @@
 .claude/
 
 # Configuration files (sensitive or dynamic data)
-# Note: companies.yaml is now included in version control
+config/companies.yaml
 config/secrets.yaml
 config/api_keys.yaml
 
