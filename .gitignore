@@ -25,6 +25,9 @@ logs/
 data/output/
 *.csv
 
+# Synced jobs tracking (contains real job IDs)
+data/synced_jobs.json
+
 # IDE
 .vscode/
 .idea/
