@@ -51,10 +51,19 @@ A high-performance async job scraping system specifically designed for Forward D
 pip install -r requirements.txt
 ```
 
+### Initial Setup
+```bash
+# Copy configuration files (required for first run)
+cp config/companies.yaml.example config/companies.yaml
+cp data/synced_jobs.json.example data/synced_jobs.json
+```
+
+**Note**: `config/companies.yaml` contains real company data and is excluded from git for privacy.
+
 ### Basic Usage
 ```bash
 # Run all platform scrapers
-python src/main_runner.py
+python src/job_aggregator.py
 
 # Run specific platforms individually
 python src/ashby_scraper.py
